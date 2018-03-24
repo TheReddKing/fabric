@@ -26,6 +26,7 @@ if __name__ == "__main__":
         os.makedirs(filepath+"/vectors/")
         os.makedirs(filepath+"/vectors_combined/")
         os.makedirs(filepath+"/results/")
+        os.makedirs(filepath+"/vocabulary/") #TODO: Add vocabulary option so that the accuracy API works better.
     except OSError as e:
         pass
     fs = relation_to_csv.all_files_in_path(f"{filepath}/data/")
