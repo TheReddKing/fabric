@@ -1,0 +1,6 @@
+run
+python setupFolders.py [folderpath] [databasename]
+[folderpath] can either be a folder with csv or [folderpath]/data where all the csv are
+
+then run in the bin directory
+./generate [folderpath] -name [databasename] -threads 4
