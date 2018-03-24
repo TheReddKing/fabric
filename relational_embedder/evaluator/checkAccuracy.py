@@ -21,33 +21,17 @@ try:
         folderpath = sys.argv[1]
         modelpath = sys.argv[2]
 
-        model = word2vec.load(modelpath)
-        print("VOCAB SIZE: ",len(model.vocab))
+        # model = word2vec.load(modelpath)
+        # print("VOCAB SIZE: ",len(model.vocab))
 
         fullfilename = modelpath.split("/")[-1].split(".")[0]
         databasename = modelpath.split("/")[-1].split("_")[0]
         filepathresults = f"{folderpath}/results/API_{fullfilename}"
 
         print("SERIALIZNG VECTORS")
+        api = api.init(path_to_we_model=modelpath, path_to_relations=f'{folderpath}/data/')
 
         all_relations = [relation for relation in glob.glob( f"{folderpath}/data/*.csv")]
-        composition_vectors = dict()
-        for relation in all_relations:
-            simp_relation_name = relation.split("/")[-1]
-            print("Computing vectors for: " + str(simp_relation_name))
-            col_we, missing_words = composition.column_avg_composition(relation, model)
-            rel_we = composition.relation_column_avg_composition(col_we)
-            composition_vectors[simp_relation_name] = rel_we
-            for k, v in col_we.items():
-                composition_vectors[simp_relation_name +"." + k] = col_we[k]
-        print("Total vectors: " + str(len(composition_vectors.items())))
-        import pickle
-        path = f"{folderpath}/vectors_combined/{fullfilename}.pkl"
-        with open(path, 'wb') as f:
-            pickle.dump(composition_vectors, f)
-
-        api = api.load(path_to_we_model=modelpath, path_to_relemb=f"{folderpath}/vectors_combined/{fullfilename}.pkl", path_to_relations=f'{folderpath}/data/')
-
         print("Calculating Concept QAs")
 
         RELEVANTS = [1,2,4,8]
@@ -96,7 +80,7 @@ try:
                         found = (resp == expected)
                         if rr == 0 and found:
                             if random.randint(0,3) == 1:
-                                fh.write(f"{value} -> ({columns[target_column]}) -> {expected}")
+                                fh.write(f"{value} -> ({columns[target_column]}) -> {expected} \n")
                         y = max(y,found)
                         if rr + 1 == RELEVANTS[ind]:
                             TOTAL_Ns[ind] += y
