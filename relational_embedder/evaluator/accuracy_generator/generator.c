@@ -9,8 +9,9 @@
 #define MAX_STRING 100
 
 int num_threads = 1;
-char train_files[1000],train_folder[1000];
+char train_files[1000],train_folder[1000],command[MAX_STRING];
 
+strcpy(command,"python")
 char arr[10000][1000];
 
 // void* temparr;
@@ -71,6 +72,9 @@ int main(int argc, char **argv)
   if ((i = ArgPos((char *)"-threads", argc, argv)) > 0) {
     num_threads = atoi(argv[i+1]);
   }
+  if ((i = ArgPos((char *)"-command", argc, argv)) > 0) {
+    strcpy(command,argv[i+1]);
+  }
 
 
 
@@ -97,7 +101,7 @@ int main(int argc, char **argv)
       if (strstr(dir->d_name,".txt") != NULL) {
           // contains
           char s [10000];
-          sprintf(s, "python ./../checkAccuracy.py %s %s/%s",train_folder,train_files,dir->d_name);
+          sprintf(s, "%s ./../checkAccuracy.py %s %s/%s",command,train_folder,train_files,dir->d_name);
           strcpy(arr[filenum],s);
           filenum += 1;
       }
@@ -106,7 +110,7 @@ int main(int argc, char **argv)
   }
   // arr = *ff;
   counts = filenum;
-
+  // system("source ~/.zshrc");
   signal(SIGINT, handle_sigint);
   pthread_t *pt = (pthread_t *)malloc(num_threads * sizeof(pthread_t));
   for (int v=0;v<num_threads;v+= 1) {
