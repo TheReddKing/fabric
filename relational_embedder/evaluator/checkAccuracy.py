@@ -95,16 +95,16 @@ try:
                         if TOTAL_CsT[ind] > 0:
                             print(RELEVANTS[ind],TOTAL_NsT[ind]*100/TOTAL_CsT[ind],"%")
 
-                for ind in range(len(RELEVANTS)):
-                    if TOTAL_CsT[ind] > 0:
-                        print(RELEVANTS[ind],TOTAL_NsT[ind]*100/TOTAL_CsT[ind],"%")
-                        fh.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_NsT[ind]*100/TOTAL_CsT[ind]),"%\n"]))
-                        flog.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_NsT[ind]*100/TOTAL_CsT[ind]),"%\n"]))
-                fh.write("--\n")
-                flog.write("--\n")
-                fh.flush()
-                flog.flush()
-                print("DONE with TABLE ",tablenum)
+                    for ind in range(len(RELEVANTS)):
+                        if TOTAL_CsT[ind] > 0:
+                            print(RELEVANTS[ind],TOTAL_NsT[ind]*100/TOTAL_CsT[ind],"%")
+                            fh.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_NsT[ind]*100/TOTAL_CsT[ind]),"%\n"]))
+                            flog.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_NsT[ind]*100/TOTAL_CsT[ind]),"%\n"]))
+                    fh.write("--\n")
+                    flog.write("--\n")
+                    fh.flush()
+                    flog.flush()
+            print("DONE with TABLE ",tablenum)
     print("---END---")
     flog.write("CONCEPT QA Results\n")
     flog.write("#ACCURACY FILE running ~1/10 every row and 2 random columns each time \n")
