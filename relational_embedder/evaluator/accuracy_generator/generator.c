@@ -5,13 +5,11 @@
 #include <math.h>
 #include <pthread.h>
 #include <dirent.h>
-
+#include <signal.h>
 #define MAX_STRING 100
 
 int num_threads = 1;
-char train_files[1000],train_folder[1000],command[MAX_STRING];
-
-strcpy(command,"python")
+char train_files[1000],train_folder[1000],command[MAX_STRING]="python";
 char arr[10000][1000];
 
 // void* temparr;

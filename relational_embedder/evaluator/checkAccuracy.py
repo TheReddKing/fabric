@@ -26,12 +26,12 @@ try:
 
         fullfilename = modelpath.split("/")[-1].split(".")[0]
         databasename = modelpath.split("/")[-1].split("_")[0]
-        filepathresults = f"{folderpath}/results/API_{fullfilename}"
+        filepathresults = str(f'{folderpath}/results/API_{fullfilename}')
 
         print("SERIALIZNG VECTORS")
-        api = api.init(path_to_we_model=modelpath, path_to_relations=f'{folderpath}/data/')
+        api = api.init(modelpath,str(f'{folderpath}/data/'))
 
-        all_relations = [relation for relation in glob.glob( f"{folderpath}/data/*.csv")]
+        all_relations = [relation for relation in glob.glob(str(f"{folderpath}/data/*.csv"))]
         print("Calculating Concept QAs")
 
         RELEVANTS = [1,2,4,8]
