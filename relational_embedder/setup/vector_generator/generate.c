@@ -4,7 +4,7 @@
 #include <string.h>
 #include <math.h>
 #include <pthread.h>
-
+#include <signal.h>
 #define MAX_STRING 100
 
 int num_threads = 1;
