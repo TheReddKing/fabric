@@ -12,7 +12,7 @@ char train_file[MAX_STRING],train_folder[10000];
 int ITERATION_TYPES[] = {2,4,8,16};
 int VECTOR_SIZES[] = {10,25,50,100,200,300};
 int NEGATIVE_TYPES[] = {10,50,100};
-char arr[sizeof(VECTOR_SIZES)/sizeof(VECTOR_SIZES[0])*sizeof(NEGATIVE_TYPES)/sizeof(NEGATIVE_TYPES[0])*sizeof(ITERATION_TYPES)/sizeof(ITERATION_TYPES[0])*2][10000];
+char arr[sizeof(VECTOR_SIZES)/sizeof(VECTOR_SIZES[0])*sizeof(NEGATIVE_TYPES)/sizeof(NEGATIVE_TYPES[0])*sizeof(ITERATION_TYPES)/sizeof(ITERATION_TYPES[0])*5][10000];
 int counts = 0;
 pthread_t *ptg;
 // A normal C function that is executed as a thread
