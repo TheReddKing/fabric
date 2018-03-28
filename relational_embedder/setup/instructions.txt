@@ -4,3 +4,7 @@ python setupFolders.py [folderpath] [databasename]
 
 then run in the bin directory
 ./generate [folderpath] -name [databasename] -threads 4
+
+
+
+./generator /data/kevin21/testing/mita/ -command ~/.local/bin/python3
