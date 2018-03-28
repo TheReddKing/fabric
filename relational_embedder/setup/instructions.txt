@@ -7,4 +7,4 @@ then run in the bin directory
 
 
 
-  ./generator /data/kevin21/testing/mita/ -command ~/.local/bin/python3 --threads=4
+./generator /data/kevin21/testing/mita/ -command ~/.local/bin/python3 --threads=4
