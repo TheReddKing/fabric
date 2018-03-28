@@ -71,7 +71,7 @@ try:
                     if len(value) < 4 or "/" in value: #We're only going 1 direction with the testing data AND NO DATES
                         continue
                     expected = dpu.encode_cell(el[target_column])
-                    print(value,expected)
+                    # print(value,expected)
                     res = api.concept_qa(value, csv_file, columns[target_column], n=RELEVANTS[-1])
                     y = 0
                     ind = 0
@@ -89,7 +89,7 @@ try:
                             TOTAL_Cs[ind] += 1
                             TOTAL_CsT[ind] += 1
                             ind += 1
-
+                    fh.flush()
                 if i % 1000 == 0:
                     print("Viewed Approximately",i/10,"lines")
                     for ind in range(len(RELEVANTS)):
