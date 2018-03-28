@@ -521,7 +521,7 @@ void *TrainModelThread(void *id) {
         cw++;
       }
       // Positive column sampling!
-      if (positive > 0) for (d = 0; d < negative + 1; d++) { //Postiive but we use negative's sampling technique. How TODO: makes words that are more frequent more "positive"
+      if (positive > 0) for (d = 0; d < positive + 1; d++) { //Postiive but remember to have the same values as negative's sampling technique. How TODO: makes words that are more frequent more "positive"
         next_random = next_random * (unsigned long long)25214903917 + 11;
         target = table[(next_random >> 16) % table_size];
         char * dict = vocab[target].set;
@@ -610,7 +610,7 @@ void *TrainModelThread(void *id) {
           f = 0;
           l2 = vocab[word].point[d] * layer1_size;
           // Propagate hidden -> output
-          for (c = 0; c < layer1_size; c++) f += syn0[c + l1] * syn1[c + l2];≈
+          for (c = 0; c < layer1_size; c++) f += syn0[c + l1] * syn1[c + l2];
           if (f <= -MAX_EXP) continue;
           else if (f >= MAX_EXP) continue;
           else f = expTable[(int)((f + MAX_EXP) * (EXP_TABLE_SIZE / MAX_EXP / 2))];
@@ -817,7 +817,7 @@ int main(int argc, char **argv) {
   if ((i = ArgPos((char *)"-iter", argc, argv)) > 0) iter = atoi(argv[i + 1]);
   if ((i = ArgPos((char *)"-min-count", argc, argv)) > 0) min_count = atoi(argv[i + 1]);
   if ((i = ArgPos((char *)"-classes", argc, argv)) > 0) classes = atoi(argv[i + 1]);
-  if ((i = ArgPos((char *)"-positive", argc, argv)) > 0) positive = atof(argv[i + 1]);
+  if ((i = ArgPos((char *)"-positive", argc, argv)) > 0) positive = atoi(argv[i + 1]);
   vocab = (struct vocab_word *)calloc(vocab_max_size, sizeof(struct vocab_word));
   vocab_hash = (int *)calloc(vocab_hash_size, sizeof(int));
   expTable = (real *)malloc((EXP_TABLE_SIZE + 1) * sizeof(real));

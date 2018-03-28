@@ -52,6 +52,7 @@ int main(int argc, char **argv)
 {
   printf("MUST RUN IN BIN FOLDER\n");
   int i;
+  int positive = 0;
   if (argc == 1) {
     printf("No args");
     return 0;
@@ -64,6 +65,9 @@ int main(int argc, char **argv)
   printf("%s\n", train_folder);
   if ((i = ArgPos((char *)"-threads", argc, argv)) > 0) {
     num_threads = atoi(argv[i+1]);
+  }
+  if ((i = ArgPos((char *)"-positive", argc, argv)) > 0) {
+    positive = atoi(argv[i+1]);
   }
   // printf("%s\n", train_file);
   // WE NEED TO GENERATE THE Parameters
@@ -82,6 +86,11 @@ int main(int argc, char **argv)
         sprintf(s, "./word2vec_csv -train %s/dataparsed/%s.csv -output %s/vectors/%s_v%d_n%d_i%d_csv.txt -size %d -sample 1e-3 -negative %d -hs 0 -binary 0 -cbow 1 -iter %d", train_folder,train_file,train_folder,train_file,VECTOR_SIZES[v],NEGATIVE_TYPES[n],ITERATION_TYPES[i],VECTOR_SIZES[v],NEGATIVE_TYPES[n],ITERATION_TYPES[i]);
         strcpy(arr[counter+1],s);
         counter += 2;
+        if (positive > 0) {
+          sprintf(s, "./word2vec_csv -train %s/dataparsed/%s.csv -output %s/vectors/%s_v%d_n%d_i%d_csv-positive.txt -size %d -sample 1e-3 -negative %d -hs 0 -binary 0 -cbow 1 -iter %d -positive %d", train_folder,train_file,train_folder,train_file,VECTOR_SIZES[v],NEGATIVE_TYPES[n],ITERATION_TYPES[i],VECTOR_SIZES[v],NEGATIVE_TYPES[n],ITERATION_TYPES[i],NEGATIVE_TYPES[n]);
+          strcpy(arr[counter],s);
+          counter += 1;
+        }
       }
     }
   }
