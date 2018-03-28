@@ -51,7 +51,7 @@ real alpha = 0.025, starting_alpha, sample = 1e-3;
 real *syn0, *syn1, *syn1neg, *expTable;
 clock_t start;
 
-int hs = 0, negative = 5;
+int hs = 0, negative = 5,positive=0;
 const int table_size = 1e8;
 int *table;
 
@@ -508,7 +508,10 @@ void *TrainModelThread(void *id) {
     if (cbow) {  //train the cbow architecture
       // in -> hidden
       cw = 0;
-      for (a = b; a < window * 2 + 1 - b; a++) if (a != window) {
+
+      // ENTIRE ROW
+      for (a = 0; a < window * 2 + 1 - b; a++) if (a != window) {
+        // Essentially we are adding all the words in entire column.
         c = sentence_position - window + a;
         if (c < 0) continue;
         if (c >= sentence_length) continue;
@@ -517,6 +520,21 @@ void *TrainModelThread(void *id) {
         for (c = 0; c < layer1_size; c++) neu1[c] += syn0[c + last_word * layer1_size];
         cw++;
       }
+      // Positive column sampling!
+      if (positive > 0) for (d = 0; d < negative + 1; d++) { //Postiive but we use negative's sampling technique. How TODO: makes words that are more frequent more "positive"
+        next_random = next_random * (unsigned long long)25214903917 + 11;
+        target = table[(next_random >> 16) % table_size];
+        char * dict = vocab[target].set;
+        char snum[10];
+        sprintf(snum, "%i_%i,", load.currentFile ,indexI);
+        // printf("%s %s\n", dict,snum);
+        if (strstr(dict, snum)) {
+          // If it's in the same table AND column
+          for (c = 0; c < layer1_size; c++) neu1[c] += syn0[c + target * layer1_size];
+          cw++;
+        }
+      }
+
       if (cw) {
         for (c = 0; c < layer1_size; c++) neu1[c] /= cw;
         if (hs) for (d = 0; d < vocab[word].codelen; d++) {
@@ -549,7 +567,7 @@ void *TrainModelThread(void *id) {
             // printf("%s %s\n", dict,snum);
             if (strstr(dict, snum)) {
               //WHAT IF WE POSITIVELY SAMPLE
-              // label = 1;
+              // Lazy implementation above ^ is that we get a learning rate and do a ratio of 1:ratio composition averaging....
               continue;
             } else {
               if (target == 0) target = next_random % (vocab_size - 1) + 1;
@@ -568,7 +586,7 @@ void *TrainModelThread(void *id) {
           for (c = 0; c < layer1_size; c++) syn1neg[c + l2] += g * neu1[c];
         }
         // hidden -> in
-        for (a = b; a < window * 2 + 1 - b; a++) if (a != window) {
+        for (a = 0; a < window * 2 + 1 - b; a++) if (a != window) {
           c = sentence_position - window + a;
           if (c < 0) continue;
           if (c >= sentence_length) continue;
@@ -578,7 +596,8 @@ void *TrainModelThread(void *id) {
         }
       }
     } else {  //train skip-gram
-      for (a = b; a < window * 2 + 1 - b; a++) if (a != window) {
+      // Window is still the entire row
+      for (a = 0; a < window * 2 + 1 - b; a++) if (a != window) {
         c = sentence_position - window + a;
         if (c < 0) continue;
         if (c >= sentence_length) continue;
@@ -591,7 +610,7 @@ void *TrainModelThread(void *id) {
           f = 0;
           l2 = vocab[word].point[d] * layer1_size;
           // Propagate hidden -> output
-          for (c = 0; c < layer1_size; c++) f += syn0[c + l1] * syn1[c + l2];
+          for (c = 0; c < layer1_size; c++) f += syn0[c + l1] * syn1[c + l2];≈
           if (f <= -MAX_EXP) continue;
           else if (f >= MAX_EXP) continue;
           else f = expTable[(int)((f + MAX_EXP) * (EXP_TABLE_SIZE / MAX_EXP / 2))];
@@ -610,9 +629,19 @@ void *TrainModelThread(void *id) {
           } else {
             next_random = next_random * (unsigned long long)25214903917 + 11;
             target = table[(next_random >> 16) % table_size];
-            if (target == 0) target = next_random % (vocab_size - 1) + 1;
-            if (target == word) continue;
-            label = 0;
+            char * dict = vocab[target].set;
+            char snum[10];
+            sprintf(snum, "%i_%i,", load.currentFile ,indexI);
+            // printf("%s %s\n", dict,snum);
+            if (strstr(dict, snum)) {
+              //WHAT IF WE POSITIVELY SAMPLE
+              // Lazy implementation above ^ is that we get a learning rate and do a ratio of 1:ratio composition averaging....
+              continue;
+            } else {
+              if (target == 0) target = next_random % (vocab_size - 1) + 1;
+              if (target == word) continue;
+              label = 0;
+            }
           }
           l2 = target * layer1_size;
           f = 0;
@@ -788,6 +817,7 @@ int main(int argc, char **argv) {
   if ((i = ArgPos((char *)"-iter", argc, argv)) > 0) iter = atoi(argv[i + 1]);
   if ((i = ArgPos((char *)"-min-count", argc, argv)) > 0) min_count = atoi(argv[i + 1]);
   if ((i = ArgPos((char *)"-classes", argc, argv)) > 0) classes = atoi(argv[i + 1]);
+  if ((i = ArgPos((char *)"-positive", argc, argv)) > 0) positive = atof(argv[i + 1]);
   vocab = (struct vocab_word *)calloc(vocab_max_size, sizeof(struct vocab_word));
   vocab_hash = (int *)calloc(vocab_hash_size, sizeof(int));
   expTable = (real *)malloc((EXP_TABLE_SIZE + 1) * sizeof(real));

@@ -48,12 +48,13 @@ try:
         for csv_filepath in all_relations:
             #Each file
             csv_file = csv_filepath.split("/")[-1]
-            fh.write(f"New Table: {csv_file}, #{tablenum} \n")
+            fh.write(f"R: New Table - {csv_file}, #{tablenum} \n")
+            flog.write(f"R: New Table - {csv_file}, #{tablenum} \n")
             tablenum += 1
             df = pd.read_csv(csv_filepath, encoding='latin1')
             columns = list(df.columns.values)
             columnsize = len(columns)
-            fh.write(f"Columns: {columns} \n")
+            fh.write(f"D:Columns: {columns} \n")
             fh.flush()
             for index, el in df.iterrows():
                 if random.randint(1,10) > 1:
@@ -79,8 +80,8 @@ try:
                         resp = res[rr][0]
                         found = (resp == expected)
                         if rr == 0 and found:
-                            if random.randint(0,3) == 1:
-                                fh.write(f"{value} -> ({columns[target_column]}) -> {expected} \n")
+                            # if random.randint(0,3) == 1: ALWAYS WRITE
+                            fh.write(f"M: {columns[c]} ----> {columns[target_column]} | {value} ------> {expected} \n")
                         y = max(y,found)
                         if rr + 1 == RELEVANTS[ind]:
                             TOTAL_Ns[ind] += y
@@ -95,26 +96,30 @@ try:
                         if TOTAL_CsT[ind] > 0:
                             print(RELEVANTS[ind],TOTAL_NsT[ind]*100/TOTAL_CsT[ind],"%")
 
-                    for ind in range(len(RELEVANTS)):
-                        if TOTAL_CsT[ind] > 0:
-                            print(RELEVANTS[ind],TOTAL_NsT[ind]*100/TOTAL_CsT[ind],"%")
-                            fh.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_NsT[ind]*100/TOTAL_CsT[ind]),"%\n"]))
-                            flog.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_NsT[ind]*100/TOTAL_CsT[ind]),"%\n"]))
-                    fh.write("--\n")
-                    flog.write("--\n")
-                    fh.flush()
-                    flog.flush()
-            print("DONE with TABLE ",tablenum)
+            for ind in range(len(RELEVANTS)):
+                if TOTAL_CsT[ind] > 0:
+                    print(RELEVANTS[ind],TOTAL_NsT[ind]*100/TOTAL_CsT[ind],"%")
+                    fh.write("L:\n")
+                    flog.write("L:\n")
+                    fh.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_NsT[ind]*100/TOTAL_CsT[ind]),"% -- ",TOTAL_CsT[ind],"\n"]))
+                    flog.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_NsT[ind]*100/TOTAL_CsT[ind]),"% -- ",TOTAL_CsT[ind],"\n"]))
+            fh.write("--\n")
+            flog.write("--\n")
+            fh.flush()
+            flog.flush()
+            print("#DONE with TABLE ",tablenum)
     print("---END---")
-    flog.write("CONCEPT QA Results\n")
+    flog.write("#CONCEPT QA Results\n")
     flog.write("#ACCURACY FILE running ~1/10 every row and 2 random columns each time \n")
     flog.write("#ONLY IF WORD IS BIGGER THAN 4 CHARACTERS LONG AND NO / signs \n")
-    flog.write("TOTAL TABLES: {0}\n".format(tablenum))
+    flog.write("D:TOTAL TABLES: {0}\n".format(tablenum))
+    fh.write("L:L\n")
+    flog.write("L:L\n")
     for ind in range(len(RELEVANTS)):
         print(RELEVANTS[ind],TOTAL_Ns[ind]*100/TOTAL_Cs[ind],"%")
-        fh.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_Ns[ind]*100/TOTAL_Cs[ind]),"%\n"]))
+        fh.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_Ns[ind]*100/TOTAL_Cs[ind]),"% -- ",TOTAL_Cs[ind],"\n"]))
         fh.flush()
-        flog.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_Ns[ind]*100/TOTAL_Cs[ind]),"%\n"]))
+        flog.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_Ns[ind]*100/TOTAL_Cs[ind]),"% -- ",TOTAL_Cs[ind],"\n"]))
         flog.flush()
 except KeyboardInterrupt:
     print("KEYOBARD")
