@@ -28,10 +28,10 @@ export PYTHONPATH="/home/kevin21/python/lib:${PYTHONPATH}"
 
 PYTHON DEPENDENCY INSTALLATION:
 pip install numpy scipy pandas
+pip install sklearn
 pip install Cython
 pip install word2vec
 pip install nltk
-pip install sklearn
 
 
 in python:

@@ -101,8 +101,8 @@ try:
                     print(RELEVANTS[ind],TOTAL_NsT[ind]*100/TOTAL_CsT[ind],"%")
                     fh.write("L:\n")
                     flog.write("L:\n")
-                    fh.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_NsT[ind]*100/TOTAL_CsT[ind]),"% -- ",TOTAL_CsT[ind],"\n"]))
-                    flog.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_NsT[ind]*100/TOTAL_CsT[ind]),"% -- ",TOTAL_CsT[ind],"\n"]))
+                    fh.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_NsT[ind]*100/TOTAL_CsT[ind]),"% -- ",str(TOTAL_CsT[ind]),"\n"]))
+                    flog.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_NsT[ind]*100/TOTAL_CsT[ind]),"% -- ",str(TOTAL_CsT[ind]),"\n"]))
             fh.write("--\n")
             flog.write("--\n")
             fh.flush()
@@ -117,9 +117,9 @@ try:
     flog.write("L:L\n")
     for ind in range(len(RELEVANTS)):
         print(RELEVANTS[ind],TOTAL_Ns[ind]*100/TOTAL_Cs[ind],"%")
-        fh.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_Ns[ind]*100/TOTAL_Cs[ind]),"% -- ",TOTAL_Cs[ind],"\n"]))
+        fh.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_Ns[ind]*100/TOTAL_Cs[ind]),"% -- ",str(TOTAL_Cs[ind]),"\n"]))
         fh.flush()
-        flog.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_Ns[ind]*100/TOTAL_Cs[ind]),"% -- ",TOTAL_Cs[ind],"\n"]))
+        flog.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_Ns[ind]*100/TOTAL_Cs[ind]),"% -- ",str(TOTAL_Cs[ind]),"\n"]))
         flog.flush()
 except KeyboardInterrupt:
     print("KEYOBARD")
