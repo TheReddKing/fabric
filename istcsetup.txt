@@ -34,10 +34,10 @@ pip install word2vec
 pip install nltk
 
 
-in python:
+python
 import nltk
 nltk.download('stopwords')
-
+exit();
 
 ----
 

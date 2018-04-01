@@ -72,23 +72,26 @@ try:
                         continue
                     expected = dpu.encode_cell(el[target_column])
                     # print(value,expected)
-                    res = api.concept_qa(value, csv_file, columns[target_column], n=RELEVANTS[-1])
-                    y = 0
-                    ind = 0
+                    try:
+                        res = api.concept_qa(value, csv_file, columns[target_column], n=RELEVANTS[-1])
+                        y = 0
+                        ind = 0
 
-                    for rr in range(len(res)):
-                        resp = res[rr][0]
-                        found = (resp == expected)
-                        if rr == 0 and found:
-                            # if random.randint(0,3) == 1: ALWAYS WRITE
-                            fh.write(f"M: {columns[c]} ----> {columns[target_column]} | {value} ------> {expected} \n")
-                        y = max(y,found)
-                        if rr + 1 == RELEVANTS[ind]:
-                            TOTAL_Ns[ind] += y
-                            TOTAL_NsT[ind] += y
-                            TOTAL_Cs[ind] += 1
-                            TOTAL_CsT[ind] += 1
-                            ind += 1
+                        for rr in range(len(res)):
+                            resp = res[rr][0]
+                            found = (resp == expected)
+                            if rr == 0 and found:
+                                # if random.randint(0,3) == 1: ALWAYS WRITE
+                                fh.write(f"M: {columns[c]} ----> {columns[target_column]} | {value} ------> {expected} \n")
+                            y = max(y,found)
+                            if rr + 1 == RELEVANTS[ind]:
+                                TOTAL_Ns[ind] += y
+                                TOTAL_NsT[ind] += y
+                                TOTAL_Cs[ind] += 1
+                                TOTAL_CsT[ind] += 1
+                                ind += 1
+                    except KeyError:
+                        print("invalid key")
                     fh.flush()
                 if i % 1000 == 0:
                     print("Viewed Approximately",i/10,"lines")
@@ -96,11 +99,11 @@ try:
                         if TOTAL_CsT[ind] > 0:
                             print(RELEVANTS[ind],TOTAL_NsT[ind]*100/TOTAL_CsT[ind],"%")
 
+            fh.write("L:\n")
+            flog.write("L:\n")
             for ind in range(len(RELEVANTS)):
                 if TOTAL_CsT[ind] > 0:
                     print(RELEVANTS[ind],TOTAL_NsT[ind]*100/TOTAL_CsT[ind],"%")
-                    fh.write("L:\n")
-                    flog.write("L:\n")
                     fh.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_NsT[ind]*100/TOTAL_CsT[ind]),"% -- ",str(TOTAL_CsT[ind]),"\n"]))
                     flog.write(" ".join([str(RELEVANTS[ind]),str(TOTAL_NsT[ind]*100/TOTAL_CsT[ind]),"% -- ",str(TOTAL_CsT[ind]),"\n"]))
             fh.write("--\n")
