@@ -35,10 +35,8 @@ try:
         print("Calculating Concept QAs")
 
         RELEVANTS = [1,2,4,8]
-        TOTAL_Ns = [0] * len(RELEVANTS) #SUB ACCURACY + Parameters
+        TOTAL_Ns = [0] * len(RELEVANTS) #TOTAL ACCURACY + Parameters
         TOTAL_Cs = [0] * len(RELEVANTS)
-        TOTAL_NsT = [0] * len(RELEVANTS) #TOTAL ACCURACY + Parameters
-        TOTAL_CsT = [0] * len(RELEVANTS)
         #LOG FILES INIT
         fh = open(filepathresults + ".log", "w")
         flog = open(filepathresults + ".res","w")
@@ -46,6 +44,8 @@ try:
 
         tablenum = 0
         for csv_filepath in all_relations:
+            TOTAL_NsT = [0] * len(RELEVANTS) #SUB ACCURACY + Parameters
+            TOTAL_CsT = [0] * len(RELEVANTS)
             #Each file
             csv_file = csv_filepath.split("/")[-1]
             fh.write(f"R: New Table - {csv_file}, #{tablenum} \n")
