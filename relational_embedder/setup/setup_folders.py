@@ -1,4 +1,4 @@
-from relational_embedder import relation_to_csv, relation_to_text
+from relational_embedder import relation_textification
 import os
 import sys
 import errno
@@ -35,10 +35,10 @@ if __name__ == "__main__":
             # os.makedirs(filepath+"/vocabulary/") #TODO: Add vocabulary option so that the accuracy API works better.
         except OSError as e:
             pass
-        fs = relation_to_csv.all_files_in_path(f"{filepath}/data/")
+        fs = relation_textification.all_files_in_path(f"{filepath}/data/")
         parseddirc = f"{filepath}/dataparsed"
     else:
-        fs = relation_to_csv.all_files_in_path(f"{filepath}/")
+        fs = relation_textification.all_files_in_path(f"{filepath}/")
 
-    relation_to_csv.serialize_row_and_column_csv(fs,f"{parseddirc}/{filename}.csv",debug=True)
-    relation_to_text.serialize_row_and_column(fs, f"{parseddirc}/{filename}.txt", debug=True)
+    relation_textification.serialize(fs,f"{parseddirc}/{filename}.csv",method="ROWCOL",format="CSV",debug=True)
+    relation_textification.serialize(fs, f"{parseddirc}/{filename}.txt",method="ROWCOL",format="TXT",debug=True)
