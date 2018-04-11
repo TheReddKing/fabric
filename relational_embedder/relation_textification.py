@@ -6,26 +6,33 @@ from os import listdir
 from os.path import isfile, join
 
 
-def _read_rows_from_dataframe(df, columns):
+def _read_rows_from_dataframe(df, columns,format="TXT"):
     for index, el in df.iterrows():
+        row = []
         for c in columns:
             cell_value = el[c]
             # clean cell_value
             cell_value = dpu.encode_cell(cell_value)
             if cell_value == 'nan':  # probably more efficient to avoid nan upstream
-                continue
-            yield cell_value
+                row.append("")
+            else:
+                row.append(cell_value)
+                if format == "TXT":
+                    yield cell_value
+        if format == "CSV":
+            yield row
 
-
-def _read_columns_from_dataframe(df, columns):
+def _read_columns_from_dataframe(df, columns,format="TXT"):
     for c in columns:
         data_values = df[c]
         for el in data_values:
             el = dpu.encode_cell(el)
+            if el == 'nan':  # probably more efficient to avoid nan upstream
+                continue
             yield el
 
-
-def serialize_row_and_column(paths, output_file, debug=False):
+# METHOD = "ROW","COL","ROWCOL" and "TXT" or "CSV" for FORMAT
+def serialize(paths, output_file, method="ROWCOL", format="TXT", debug=False):
     try:
         os.remove(output_file)
     except FileNotFoundError:
@@ -33,60 +40,29 @@ def serialize_row_and_column(paths, output_file, debug=False):
 
     total = len(paths)
     current = 0
+    if format == "TXT":
+        f = open(output_file, 'w')
+    elif format == "CSV":
+        f = csv.writer(open(output_file, 'w'), delimiter=',', quotechar='\"', quoting=csv.QUOTE_MINIMAL)
     for path in paths:
         if debug:
             print(str(current) + "/" + str(total))
             current += 1
         df = pd.read_csv(path, encoding='latin1')
         columns = df.columns
-        with open(output_file, 'a') as f:
+        if format == "TXT":
             # Rows
-            for cell_value in _read_rows_from_dataframe(df, columns):
-                f.write(" " + cell_value)
+            if "ROW" in method:
+                for cell_value in _read_rows_from_dataframe(df, columns):
+                    f.write(" " + cell_value)
             # Columns
-            for cell_value in _read_columns_from_dataframe(df, columns):
-                f.write(" " + cell_value)
-
-
-def serialize_row(paths, output_file, debug=False):
-    try:
-        os.remove(output_file)
-    except FileNotFoundError:
-        print("Creating new file for writing data")
-
-    total = len(paths)
-    current = 0
-    for path in paths:
-        if debug:
-            print(str(current) + "/" + str(total))
-            current += 1
-        df = pd.read_csv(path, encoding='latin1')
-        columns = df.columns
-        with open(output_file, 'a') as f:
-            # Rows
-            for cell_value in _read_rows_from_dataframe(df, columns):
-                f.write(" " + cell_value)
-
-
-def serialize_column(paths, output_file, debug=False):
-    try:
-        os.remove(output_file)
-    except FileNotFoundError:
-        print("Creating new file for writing data")
-
-    total = len(paths)
-    current = 0
-    for path in paths:
-        if debug:
-            print(str(current) + "/" + str(total))
-            current += 1
-        df = pd.read_csv(path, encoding='latin1')
-        columns = df.columns
-        with open(output_file, 'a') as f:
-            # Columns
-            for cell_value in _read_columns_from_dataframe(df, columns):
-                f.write(" " + cell_value)
-
+            if "COL" in method:
+                for cell_value in _read_columns_from_dataframe(df, columns):
+                            f.write(" " + cell_value)
+        elif format == "CSV":
+            for row in _read_rows_from_dataframe(df,columns,format="CSV"):
+                f.writerow(row)
+            f.writerow(["~R!RR*~"])
 
 def all_files_in_path(path):
     fs = [join(path, f) for f in listdir(path) if isfile(join(path, f))]
@@ -111,10 +87,10 @@ if __name__ == "__main__":
 
     fs = all_files_in_path(path)
     if method == "row":
-        serialize_row(fs, output, debug=debug)
+        serialize(fs, output,method="ROW",debug=debug)
     elif method == "col":
-        serialize_column(fs, output, debug=debug)
+        serialize(fs, output,method="COL", debug=debug)
     elif method == "row_and_col":
-        serialize_row_and_column(fs, output, debug=debug)
+        serialize(fs, output,method="ROWCOL", debug=debug)
 
     print("Done!")
