@@ -27,7 +27,7 @@ def _read_columns_from_dataframe(df, columns,format="TXT"):
         data_values = df[c]
         for el in data_values:
             el = dpu.encode_cell(el)
-            if cell_value == 'nan':  # probably more efficient to avoid nan upstream
+            if el == 'nan':  # probably more efficient to avoid nan upstream
                 continue
             yield el
 
@@ -41,9 +41,9 @@ def serialize(paths, output_file, method="ROWCOL", format="TXT", debug=False):
     total = len(paths)
     current = 0
     if format == "TXT":
-        f = open(output_file, 'a')
-    elif format = "CSV":
-        f = csv.writer(open(output_file, 'a'), delimiter=',', quotechar='\"', quoting=csv.QUOTE_MINIMAL)
+        f = open(output_file, 'w')
+    elif format == "CSV":
+        f = csv.writer(open(output_file, 'w'), delimiter=',', quotechar='\"', quoting=csv.QUOTE_MINIMAL)
     for path in paths:
         if debug:
             print(str(current) + "/" + str(total))

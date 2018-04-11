@@ -18,7 +18,7 @@ if __name__ == "__main__":
     filepath = sys.argv[1]
     filename = sys.argv[2]
     parseddirc = filepath
-    if len(sys.argv) == 4:
+    if len(sys.argv) == 3:
         # filepath
 
         try:

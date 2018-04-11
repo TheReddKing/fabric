@@ -46,7 +46,7 @@ struct vocab_word *vocab;
 int binary = 0, cbow = 1, debug_mode = 2, window = 5, min_count = 0, num_threads = 8, min_reduce = 0;
 int *vocab_hash;
 long long vocab_max_size = 1000, vocab_size = 0, layer1_size = 100;
-long long train_words = 0, word_count_actual = 0, iter = 5, file_size = 0, classes = 0;
+long long train_words = 0, word_count_actual = 0, iter = 5, file_size = 0, iter_saved = 0, classes = 0;
 real alpha = 0.025, starting_alpha, sample = 1e-3;
 real *syn0, *syn1, *syn1neg, *expTable;
 clock_t start;
@@ -165,7 +165,7 @@ int AddWordToVocab(char *word, char* index) {
   if (strstr(vocab[vocab_size].set, index) == NULL) {
     strcat(vocab[vocab_size].set,index);
   }
-  strcpy(vocab[vocab_size].word, word);
+  strncpy(vocab[vocab_size].word, word,length);
   vocab[vocab_size].cn = 0;
   vocab_size++;
   // Reallocate memory if needed
@@ -680,9 +680,44 @@ void TrainModel() {
   InitNet();
   if (negative > 0) InitUnigramTable();
   start = clock();
+  int actual_iter = iter;
+  int total_iter = 0;
+  if (iter_saved == 1) {
+    iter = 1;
+    while(total_iter < actual_iter/2) {
+      for (a = 0; a < num_threads; a++) pthread_create(&pt[a], NULL, TrainModelThread, (void *)a);
+      for (a = 0; a < num_threads; a++) pthread_join(pt[a], NULL);
+      total_iter += iter;
+      iter = total_iter;
+      char buffer[MAX_STRING];
+      sprintf(buffer, "_v%lld_n%d_i%d.txt", layer1_size,negative,total_iter);
+      char output_filename[MAX_STRING_FILE];
+      strcpy(output_filename,output_file);
+      strcat(output_filename, buffer);
+      
+      fo = fopen(output_filename, "wb");
+      fprintf(fo, "%lld %lld\n", vocab_size, layer1_size);
+      for (a = 0; a < vocab_size; a++) {
+        fprintf(fo, "%s ", vocab[a].word);
+        if (binary) for (b = 0; b < layer1_size; b++) fwrite(&syn0[a * layer1_size + b], sizeof(real), 1, fo);
+        else for (b = 0; b < layer1_size; b++) fprintf(fo, "%lf ", syn0[a * layer1_size + b]);
+        fprintf(fo, "\n");
+      }
+      fclose(fo);
+    }
+    iter = actual_iter - total_iter;
+  } else if(iter_saved > 1) {
+    // Every N times
+    //TODO: UNIMPLEMENTED (also in notes)
+  }
   for (a = 0; a < num_threads; a++) pthread_create(&pt[a], NULL, TrainModelThread, (void *)a);
   for (a = 0; a < num_threads; a++) pthread_join(pt[a], NULL);
-  fo = fopen(output_file, "wb");
+  char buffer[MAX_STRING];
+  sprintf(buffer, "_v%lld_n%d_i%i_dynamic_window.txt", layer1_size,negative,actual_iter);
+  char output_filename[MAX_STRING_FILE];
+  strcpy(output_filename,output_file);
+  strcat(output_filename, buffer);
+  fo = fopen(output_filename, "wb");
   if (classes == 0) {
     // Save the word vectors
     fprintf(fo, "%lld %lld\n", vocab_size, layer1_size);
@@ -792,6 +827,8 @@ int main(int argc, char **argv) {
     printf("\t\tThe vocabulary will be read from <file>, not constructed from the training data\n");
     printf("\t-cbow <int>\n");
     printf("\t\tUse the continuous bag of words model; default is 1 (use 0 for skip-gram model)\n");
+    printf("\t-iter_saved <int>\n");
+    printf("\t\t0 for only saving iters vector once, else 1 is every power of 2... class defaults to 0\n");
     printf("\nExamples:\n");
     printf("./word2vec -train data.txt -output vec.txt -size 200 -window 5 -sample 1e-4 -negative 5 -hs 0 -binary 0 -cbow 1 -iter 3\n\n");
     return 0;
@@ -818,6 +855,7 @@ int main(int argc, char **argv) {
   if ((i = ArgPos((char *)"-min-count", argc, argv)) > 0) min_count = atoi(argv[i + 1]);
   if ((i = ArgPos((char *)"-classes", argc, argv)) > 0) classes = atoi(argv[i + 1]);
   if ((i = ArgPos((char *)"-positive", argc, argv)) > 0) positive = atoi(argv[i + 1]);
+  if ((i = ArgPos((char *)"-iter-saved", argc, argv)) > 0) iter_saved = atoi(argv[i + 1]);
   vocab = (struct vocab_word *)calloc(vocab_max_size, sizeof(struct vocab_word));
   vocab_hash = (int *)calloc(vocab_hash_size, sizeof(int));
   expTable = (real *)malloc((EXP_TABLE_SIZE + 1) * sizeof(real));
