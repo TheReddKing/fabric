@@ -690,11 +690,11 @@ void TrainModel() {
       total_iter += iter;
       iter = total_iter;
       char buffer[MAX_STRING];
-      sprintf(buffer, "_v%lld_n%d_i%d.txt", layer1_size,negative,total_iter);
+      sprintf(buffer, "_v%lld_n%d_i%d_dynamic_window.txt", layer1_size,negative,total_iter);
       char output_filename[MAX_STRING_FILE];
-      strcpy(output_filename,output_file);
+      strcpy(output_filename, output_file);
       strcat(output_filename, buffer);
-      
+
       fo = fopen(output_filename, "wb");
       fprintf(fo, "%lld %lld\n", vocab_size, layer1_size);
       for (a = 0; a < vocab_size; a++) {
@@ -827,10 +827,10 @@ int main(int argc, char **argv) {
     printf("\t\tThe vocabulary will be read from <file>, not constructed from the training data\n");
     printf("\t-cbow <int>\n");
     printf("\t\tUse the continuous bag of words model; default is 1 (use 0 for skip-gram model)\n");
-    printf("\t-iter_saved <int>\n");
+    printf("\t-iter-saved <int>\n");
     printf("\t\t0 for only saving iters vector once, else 1 is every power of 2... class defaults to 0\n");
     printf("\nExamples:\n");
-    printf("./word2vec -train data.txt -output vec.txt -size 200 -window 5 -sample 1e-4 -negative 5 -hs 0 -binary 0 -cbow 1 -iter 3\n\n");
+    printf("./word2vec -train data.txt -output vec -size 200 -window 5 -sample 1e-4 -negative 5 -hs 0 -binary 0 -cbow 1 -iter 3\n\n");
     return 0;
   }
   output_file[0] = 0;
