@@ -78,9 +78,7 @@ if __name__ == "__main__":
     parser.add_argument('--method', default='row_and_col', help='path to relational_embedding model')
     parser.add_argument('--output', default='textified.txt', help='path to relational_embedding model')
     parser.add_argument('--debug', default=False, help='whether to run progrm in debug mode or not')
-    parser.add_argument('--spaces', default=True, help='should I split on spaces? Default Yes')
-
-    Globals.set(GlobalC.RELATIONAL_EMBEDDER,"replaceSpace",spaces)
+    parser.add_argument('--spaces', default='True', help='should I split on spaces? Default True')
 
     args = parser.parse_args()
 
@@ -88,6 +86,10 @@ if __name__ == "__main__":
     method = args.method
     output = args.output
     debug = args.debug
+    spaces = args.spaces
+    print(spaces)
+    Globals.set(GlobalC.RELATIONAL_EMBEDDER,"replaceSpace",spaces)
+
 
     fs = all_files_in_path(path)
     if method == "row":

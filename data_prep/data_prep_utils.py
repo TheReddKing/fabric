@@ -7,16 +7,22 @@ def lowercase_removepunct(token):
     token = token.lower()
     token = token.replace(',', '_')
     token = token.replace('.', '_')
+    token = token.replace(' _', ' ')
+    token = token.replace('_ ', ' ')
     token = token.replace('  ', ' ')
     token = token.strip()
+    token = token.lstrip('_')
+    token = token.rstrip('_')
     return token
 
 
 def encode_cell(cell_value):
     replaceSpace = Globals.get(GlobalC.RELATIONAL_EMBEDDER,"replaceSpace")
     cell_value = lowercase_removepunct(cell_value)
-    if replaceSpace:
+    if replaceSpace == 'True' or replaceSpace == '1':
         cell_value = cell_value.replace(' ', '_')
+        cell_value = cell_value.replace('__', '_')
+        # print(replaceSpace)
     return cell_value
 
 

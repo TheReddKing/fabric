@@ -5,23 +5,37 @@ import errno
 import glob
 import shutil
 from globals import *
+import argparse
 
 dir_path = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("NEED MORE ARGS")
         print("python setup_folders.py foldername databasename")
-        print("OR")
-        print("python setup_folders.py foldername databasename outputparsedfolder")
         # NEW python setup_f.py data_fold databasename outputparsedfol
         sys.exit(0)
 
-    Globals.set(GlobalC.RELATIONAL_EMBEDDER,"replaceSpace",False)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('foldername', metavar='foldername',
+                    help='folder')
+    parser.add_argument('databasename', metavar='dbname',
+        help='db name')
+    parser.add_argument('--spaces', default='True', help='should I split on spaces? Default Yes')
+    parser.add_argument('--output', default="", help='output folder')
 
-    filepath = sys.argv[1]
-    filename = sys.argv[2]
+
+    args = parser.parse_args()
+
+    outputparsedfolder = args.output
+    spaces = args.spaces
+
+    # print(spaces)
+    Globals.set(GlobalC.RELATIONAL_EMBEDDER,"replaceSpace",spaces)
+
+    filepath = args.foldername
+    filename = args.databasename
     parseddirc = filepath
-    if len(sys.argv) == 3:
+    if len(outputparsedfolder) == 0:
         # filepath
         try:
             if(not os.path.isdir(f"{filepath}/data/")):
