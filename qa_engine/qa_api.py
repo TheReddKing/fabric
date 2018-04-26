@@ -54,5 +54,3 @@ if __name__ == "__main__":
     print(q)
     for a in answers:
         print(a)
-
-

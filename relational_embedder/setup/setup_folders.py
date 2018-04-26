@@ -4,6 +4,7 @@ import sys
 import errno
 import glob
 import shutil
+from globals import *
 
 dir_path = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 if __name__ == "__main__":
@@ -15,12 +16,13 @@ if __name__ == "__main__":
         # NEW python setup_f.py data_fold databasename outputparsedfol
         sys.exit(0)
 
+    Globals.set(GlobalC.RELATIONAL_EMBEDDER,"replaceSpace",False)
+
     filepath = sys.argv[1]
     filename = sys.argv[2]
     parseddirc = filepath
     if len(sys.argv) == 3:
         # filepath
-
         try:
             if(not os.path.isdir(f"{filepath}/data/")):
                 files = glob.glob(f"{filepath}/*.csv")

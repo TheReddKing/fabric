@@ -1,20 +1,22 @@
 from dataaccess import csv_access
 import re
-
+from globals import *
 
 def lowercase_removepunct(token):
     token = str(token)
     token = token.lower()
-    token = token.replace(',', ' ')
-    token = token.replace('.', ' ')
+    token = token.replace(',', '_')
+    token = token.replace('.', '_')
     token = token.replace('  ', ' ')
     token = token.strip()
     return token
 
 
 def encode_cell(cell_value):
+    replaceSpace = Globals.get(GlobalC.RELATIONAL_EMBEDDER,"replaceSpace")
     cell_value = lowercase_removepunct(cell_value)
-    cell_value = cell_value.replace(' ', '_')
+    if replaceSpace:
+        cell_value = cell_value.replace(' ', '_')
     return cell_value
 
 

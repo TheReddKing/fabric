@@ -4,7 +4,8 @@ from data_prep import data_prep_utils as dpu
 import os
 from os import listdir
 from os.path import isfile, join
-
+import csv
+from globals import *
 
 def _read_rows_from_dataframe(df, columns,format="TXT"):
     for index, el in df.iterrows():
@@ -77,6 +78,9 @@ if __name__ == "__main__":
     parser.add_argument('--method', default='row_and_col', help='path to relational_embedding model')
     parser.add_argument('--output', default='textified.txt', help='path to relational_embedding model')
     parser.add_argument('--debug', default=False, help='whether to run progrm in debug mode or not')
+    parser.add_argument('--spaces', default=True, help='should I split on spaces? Default Yes')
+
+    Globals.set(GlobalC.RELATIONAL_EMBEDDER,"replaceSpace",spaces)
 
     args = parser.parse_args()
 
