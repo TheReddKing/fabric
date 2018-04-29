@@ -1,29 +1,31 @@
-import pandas as pd
-import os
-import numpy as np
-import itertools
-from scipy.spatial.distance import cosine
-from enum import Enum
 import argparse
+from enum import Enum
 
-from data_prep import data_prep_utils as dpu
+import numpy as np
+import os
+import pandas as pd
+
 import word2vec as w2v
+from relational_embedder.data_prep import data_prep_utils as dpu
 
 
 class CompositionStrategy(Enum):
     AVG = 0,
-    WEIGHTED_AVG_EQUALITY = 1
+    WEIGHTED_AVG_EQUALITY = 1,
+    AVG_UNIQUE = 2
 
 
-def column_avg_composition(path, we_model):
+def column_avg_composition(df, we_model):
     column_we = dict()
-    df = pd.read_csv(path, encoding='latin1')
     columns = df.columns
     missing_words = 0
     for c in columns:
         col_wes = []
         value = df[c]
         for el in value:
+            # Check validity of cell
+            if not dpu.valid_cell(el):
+                continue
             el = dpu.encode_cell(el)
             try:
                 vector = we_model.get_vector(el)
@@ -37,7 +39,31 @@ def column_avg_composition(path, we_model):
     return column_we, missing_words
 
 
-def column_weighted_avg_equality_composition(path, we_model):
+def column_avg_unique_composition(df, we_model):
+    column_we = dict()
+    columns = df.columns
+    missing_words = 0
+    for c in columns:
+        col_wes = []
+        value = df[c].unique()
+        for el in value:
+            # Check validity of cell
+            if not dpu.valid_cell(el):
+                continue
+            el = dpu.encode_cell(el)
+            try:
+                vector = we_model.get_vector(el)
+            except KeyError:
+                missing_words += 1
+                continue
+            col_wes.append(vector)
+        col_wes = np.asarray(col_wes)
+        col_we = np.mean(col_wes, axis=0)
+        column_we[c] = col_we
+    return column_we, missing_words
+
+
+def column_weighted_avg_equality_composition(df, we_model):
     # TODO
     return
 
@@ -52,14 +78,16 @@ def relation_column_weighted_avg_equality_composition(column_we):
     return
 
 
-def row_avg_composition(path, we_model):
+def row_avg_composition(df, we_model):
     missing_words = 0
     row_we_dict = dict()
-    df = pd.read_csv(path, encoding='latin1')
     columns = df.columns
     for i, row in df.iterrows():
         row_wes = []
         for c in columns:
+            # Check validity of cell
+            if not dpu.valid_cell(row[c]):
+                continue
             el = dpu.encode_cell(row[c])
             try:
                 we = we_model.get_vector(el)
@@ -73,7 +101,7 @@ def row_avg_composition(path, we_model):
     return row_we_dict, missing_words
 
 
-def row_weighted_avg_equality_composition(path, we_model):
+def row_weighted_avg_equality_composition(df, we_model):
     # TODO
     return
 
@@ -82,9 +110,31 @@ def compose_dataset_avg(path_to_relations, we_model):
     relational_embedding = dict()
     all_relations = [relation for relation in os.listdir(path_to_relations)]
     for relation in all_relations:
-        col_we, missing_words = column_avg_composition(path_to_relations + "/" + relation, we_model)
+        path = path_to_relations + "/" + relation
+        df = pd.read_csv(path, encoding='latin1')
+        if not dpu.valid_relation(df):
+            continue
+        col_we, missing_words = column_avg_composition(df, we_model)
         rel_we = relation_column_avg_composition(col_we)
-        row_we, missing_words = row_avg_composition(path_to_relations + "/" + relation, we_model)
+        row_we, missing_words = row_avg_composition(df, we_model)
+        relational_embedding[relation] = dict()
+        relational_embedding[relation]["vector"] = rel_we
+        relational_embedding[relation]["columns"] = col_we
+        relational_embedding[relation]["rows"] = row_we
+    return relational_embedding
+
+
+def compose_dataset_avg_unique(path_to_relations, we_model):
+    relational_embedding = dict()
+    all_relations = [relation for relation in os.listdir(path_to_relations)]
+    for relation in all_relations:
+        path = path_to_relations + "/" + relation
+        df = pd.read_csv(path, encoding='latin1')
+        if not dpu.valid_relation(df):
+            continue
+        col_we, missing_words = column_avg_unique_composition(df, we_model)
+        rel_we = relation_column_avg_composition(col_we)
+        row_we, missing_words = row_avg_composition(df, we_model)
         relational_embedding[relation] = dict()
         relational_embedding[relation]["vector"] = rel_we
         relational_embedding[relation]["columns"] = col_we
@@ -96,9 +146,13 @@ def compose_dataset_weighted_avg_equality(path_to_relations, we_model):
     relational_embedding = dict()
     all_relations = [relation for relation in os.listdir(path_to_relations)]
     for relation in all_relations:
-        col_we, missing_words = column_weighted_avg_equality_composition(path_to_relations + "/" + relation, we_model)
+        path = path_to_relations + "/" + relation
+        df = pd.read_csv(path, encoding='latin1')
+        if not dpu.valid_relation(df):
+            continue
+        col_we, missing_words = column_weighted_avg_equality_composition(df, we_model)
         rel_we = relation_column_weighted_avg_equality_composition(col_we)
-        row_we, missing_words = row_weighted_avg_equality_composition(path_to_relations + "/" + relation, we_model)
+        row_we, missing_words = row_weighted_avg_equality_composition(df, we_model)
         relational_embedding[relation] = dict()
         relational_embedding[relation]["vector"] = rel_we
         relational_embedding[relation]["columns"] = col_we
@@ -114,9 +168,14 @@ def compose_dataset(path_to_relations, we_model, strategy=CompositionStrategy.AV
     :return:
     """
     if strategy == CompositionStrategy.AVG:
+        print("Composing using AVG")
         return compose_dataset_avg(path_to_relations, we_model)
     elif strategy == CompositionStrategy.WEIGHTED_AVG_EQUALITY:
+        print("Composing using WEIGHTED_AVG_EQUALITY")
         return compose_dataset_weighted_avg_equality(path_to_relations, we_model)
+    elif strategy == CompositionStrategy.AVG_UNIQUE:
+        print("Composing using AVG_UNIQUE")
+        return compose_dataset_avg_unique(path_to_relations, we_model)
 
 
 if __name__ == "__main__":

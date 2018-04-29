@@ -3,9 +3,14 @@ import os
 import sys
 import errno
 import glob
+import sys
+
+import os
 import shutil
 from globals import *
 import argparse
+
+from relational_embedder.textification import relation_to_csv, textify_relation
 
 dir_path = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 if __name__ == "__main__":
@@ -56,5 +61,5 @@ if __name__ == "__main__":
     else:
         fs = relation_textification.all_files_in_path(f"{filepath}/")
 
-    relation_textification.serialize(fs,f"{parseddirc}/{filename}.csv",method="ROWCOL",format="CSV",debug=True)
-    relation_textification.serialize(fs, f"{parseddirc}/{filename}.txt",method="ROWCOL",format="TXT",debug=True)
+    relation_to_csv.serialize_row_and_column_csv(fs, f"{parseddirc}/{filename}.csv", debug=True)
+    textify_relation.serialize_row_and_column(fs, f"{parseddirc}/{filename}.txt", debug=True)
