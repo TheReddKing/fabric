@@ -9,7 +9,7 @@ from scipy.spatial.distance import euclidean
 import word2vec
 from relational_embedder import composition
 from relational_embedder.data_prep import data_prep_utils as dpu
-
+import math
 
 class SIMF(Enum):
     COSINE = 0
@@ -64,15 +64,26 @@ class Fabric:
 
     def concept_qa(self, entity, relation, attribute, n=20, simf=SIMF.COSINE):
         entity = dpu.encode_cell(entity)
+        if " " in entity:
+            # We have spaces/words now!!
+            entity_words = entity.split(" ")
         indexes = []
         metrics = []
         if simf == SIMF.COSINE:
-            indexes, metrics = self.M.cosine(entity, n=n)
+            if " " in entity:
+                indexes, metrics = self.M.cosine_array(entity_words, n=n)
+                # print(indexes)
+            else:
+                indexes, metrics = self.M.cosine(entity, n=n)
         elif simf == SIMF.EUCLIDEAN:
             indexes, metrics = self.M.euclidean(entity, n=n)
+            #SPACES UNIMPLEMENTED TODO:
         res = self.M.generate_response(indexes, metrics).tolist()
         res = [(e, self.re_range_score(score)) for e, score in res]
         vec_attribute = self.RE[relation]["columns"][attribute]
+        if type(vec_attribute) is not np.ndarray:
+            # print(attribute)
+            return []
         # vec_attribute = self.RE[relation+"."+attribute]
         candidate_attribute_sim = []
         for e, score in res:

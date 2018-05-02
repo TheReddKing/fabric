@@ -27,11 +27,23 @@ def column_avg_composition(df, we_model):
             if not dpu.valid_cell(el):
                 continue
             el = dpu.encode_cell(el)
-            try:
-                vector = we_model.get_vector(el)
-            except KeyError:
-                missing_words += 1
-                continue
+            if " " in el:
+                els = el.split(" ")
+                vector = we_model.get_vector(els[0])
+                missing_words_mini = 0
+                for ee in range(1,len(els)):
+                    try:
+                        vector += we_model.get_vector(els[1])
+                    except KeyError:
+                        missing_words += 1
+                        missing_words_mini += 1
+                vector /= (len(els) - missing_words_mini)
+            else:
+                try:
+                    vector = we_model.get_vector(el)
+                except KeyError:
+                    missing_words += 1
+                    continue
             col_wes.append(vector)
         col_wes = np.asarray(col_wes)
         col_we = np.mean(col_wes, axis=0)
@@ -51,11 +63,23 @@ def column_avg_unique_composition(df, we_model):
             if not dpu.valid_cell(el):
                 continue
             el = dpu.encode_cell(el)
-            try:
-                vector = we_model.get_vector(el)
-            except KeyError:
-                missing_words += 1
-                continue
+            if " " in el:
+                els = el.split(" ")
+                vector = we_model.get_vector(els[0])
+                missing_words_mini = 0
+                for ee in range(1,len(els)):
+                    try:
+                        vector += we_model.get_vector(els[1])
+                    except KeyError:
+                        missing_words += 1
+                        missing_words_mini += 1
+                vector /= (len(els) - missing_words_mini)
+            else:
+                try:
+                    vector = we_model.get_vector(el)
+                except KeyError:
+                    missing_words += 1
+                    continue
             col_wes.append(vector)
         col_wes = np.asarray(col_wes)
         col_we = np.mean(col_wes, axis=0)
@@ -89,12 +113,24 @@ def row_avg_composition(df, we_model):
             if not dpu.valid_cell(row[c]):
                 continue
             el = dpu.encode_cell(row[c])
-            try:
-                we = we_model.get_vector(el)
-            except KeyError:
-                missing_words += 1
-                continue
-            row_wes.append(we)
+            if " " in el:
+                els = el.split(" ")
+                vector = we_model.get_vector(els[0])
+                missing_words_mini = 0
+                for ee in range(1,len(els)):
+                    try:
+                        vector += we_model.get_vector(els[1])
+                    except KeyError:
+                        missing_words += 1
+                        missing_words_mini += 1
+                vector /= (len(els) - missing_words_mini)
+            else:
+                try:
+                    vector = we_model.get_vector(el)
+                except KeyError:
+                    missing_words += 1
+                    continue
+            row_wes.append(vector)
         row_wes = np.asarray(row_wes)
         row_we = np.mean(row_wes, axis=0)
         row_we_dict[i] = row_we

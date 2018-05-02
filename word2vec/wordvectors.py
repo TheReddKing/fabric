@@ -85,7 +85,16 @@ class WordVectors(object):
         """
         word_index = np.where(np.all(self.vectors == vector, axis=1))[0]
         return self.word(word_index[0]) if word_index.size else None
-
+    def cosine_array(self,words,n=10):
+        total = len(words)
+        combined = np.copy(self[words[0]])
+        for i in range(1,total):
+            combined += self[words[i]]
+        combined /= total
+        metrics = np.dot(self.vectors, combined.T)
+        best = np.argsort(metrics)[::-1][1:n + 1]
+        best_metrics = metrics[best]
+        return best, best_metrics
     def cosine(self, word, n=10):
         """
         Cosine similarity.

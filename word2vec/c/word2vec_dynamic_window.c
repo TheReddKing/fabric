@@ -18,7 +18,7 @@
 #include <math.h>
 #include <pthread.h>
 
-#define MAX_STRING_VOCAB 2000
+#define MAX_STRING_VOCAB 5000
 #define MAX_STRING 100
 #define MAX_STRING_FILE 1000
 #define EXP_TABLE_SIZE 1000

@@ -7,11 +7,11 @@ import glob
 import word2vec
 import itertools
 import numpy as np
-from relational_embedder import composition
-from data_prep import data_prep_utils as dpu
+from relational_embedder.data_prep import data_prep_utils as dpu
 from scipy.spatial.distance import cosine
 import pandas as pd
 import random
+from globals import *
 try:
     dir_path = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
     if __name__ == "__main__":
@@ -21,15 +21,16 @@ try:
 
         folderpath = sys.argv[1]
         modelpath = sys.argv[2]
-
-        # model = word2vec.load(modelpath)
-        # print("VOCAB SIZE: ",len(model.vocab))
-
+        if len(sys.argv) == 4 and sys.argv[3] == "space":
+            Globals.set(GlobalC.RELATIONAL_EMBEDDER,"replaceSpace","False")
         fullfilename = modelpath.split("/")[-1].split(".")[0]
         databasename = modelpath.split("/")[-1].split("_")[0]
-        if(not os.path.isdir(f"{filepath}/results/")):
-            os.makedirs(f"{filepath}/results/")
-            
+        # print (sys.version)
+        # print( f"{folderpath}" )
+        # print("HELLO")
+        if not os.path.isdir(f'{folderpath}/results/'):
+            os.makedirs(f'{folderpath}/results/')
+
         filepathresults = str(f'{folderpath}/results/API_{fullfilename}')
 
         print("SERIALIZNG VECTORS")
